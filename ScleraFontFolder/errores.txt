@@ -1,0 +1,125 @@
+Teléfono de emergencia.svg | U+F070A | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+Teléfono de emergencia_2.svg | U+F070C | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+bocadillo de pan.svg | U+F0B59 | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+bolsa de basura de granada.svg | U+F0B7B | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+bolsa de basura roja.svg | U+F0B81 | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+color azul.svg | U+F0F77 | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+color marrón.svg | U+F0F7A | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+color púrpura.svg | U+F0F7D | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+color rojo.svg | U+F0F7E | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+consulta prevista.svg | U+F1090 | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+figura de chocolate puro.svg | U+F1690 | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+grupo_6.svg | U+F17E8 | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+icono de grabación de música o vídeo.svg | U+F1918 | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
+
+morcilla.svg | U+F1E60 | ValueError: El SVG no contiene trazados path utilizables.
+Traceback (most recent call last):
+  File "C:\Program Files\FontForgeBuilds\script.py", line 216, in <module>
+    numero_trazados = limpiar_svg(
+                      ^^^^^^^^^^^^
+  File "C:\Program Files\FontForgeBuilds\script.py", line 91, in limpiar_svg
+    raise ValueError("El SVG no contiene trazados path utilizables.")
+ValueError: El SVG no contiene trazados path utilizables.
