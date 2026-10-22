@@ -8,7 +8,7 @@
     <style>
         @font-face {
             font-family: 'DynamicPictogramFont';
-            src: url('ScleraFont.woff2') format('woff2');
+            src: url('https://AndresHugoBernardez.github.io/pagesAB/PictoWriter/ScleraFont.woff2') format('woff2');
             font-weight: normal;
             font-style: normal;
         }
@@ -60,7 +60,7 @@
         // 1. Carga automática inicial por defecto (si se usa servidor local)
         async function loadDefaults() {
             try {
-                const response = await fetch('sclera_web_data_v2.json');
+                const response = await fetch('https://andreshugobernardez.github.io/pagesAB/PictoWriter/sclera_map.json');
                 if (response.ok) {
                     pictogramData = await response.json();
                     console.log("JSON por defecto cargado exitosamente. Claves totales:", Object.keys(pictogramData).length);
@@ -68,12 +68,10 @@
             } catch (e) {
                 console.log("Nota: Carga automática de JSON omitida (ejecutando desde disco local o archivo no encontrado). Usa el selector superior.");
             }
-        }
-		// 1.b Carga de diccionario
+            		// 1.b Carga de diccionario
 		
-		   async function loadDefaults() {
-            try {
-                const response = await fetch('https://github.com/dm03514/open-dictionaries/tree/master/es/dict.json');
+	        try {
+                const response = await fetch('https://andreshugobernardez.github.io/pagesAB/PictoWriter/dict2.json');
                 if (response.ok) {
                     DictionaryData = await response.json();
                     console.log("Diccionario cargado", Object.keys(DictionaryData).length);
@@ -81,7 +79,10 @@
             } catch (e) {
                 console.log("Nota: Carga de diccionario fallido");
             }
+
+        
         }
+
 
         // 2. Manejar carga de fuente personalizada con FontFace API
         document.getElementById('fontFile').addEventListener('change', function(event) {
@@ -147,10 +148,14 @@
             }
 
             const tokens = text.match(/([a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]+|[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]|\s+)/g) || [];
+  
+
+           
 
             tokens.forEach(token => {
                 const cleanToken = token.toLowerCase().trim();
 
+      
                 if (!cleanToken) {
                     const spaceSpan = document.createElement('span');
                     spaceSpan.className = 'w-2';
@@ -169,29 +174,69 @@
                 const labelBox = document.createElement('span');
                 labelBox.className = 'text-xs text-slate-500 mt-1 font-medium';
                 labelBox.textContent = token;
+                
 
-
-				
-				let synonyms = [];
-				let sinonimos="";
-				if(DictionaryData[cleanToken]){
-				
-				//Extraer string de DictionaryData[cleanToken].synonyms
-				sinonimos= DictionaryData[cleanToken].synonyms;
-				//Dividir string sinonimos en palabras...
-				//to be continued...
-				
-				}
 
                 let options = [];
 				
 				
                 if (pictogramData[cleanToken]) {
-                    options = extractOptions(pictogramData[cleanToken].default);
+                    options = extractOptions(pictogramData[cleanToken]);
+        
+                  
                 }
+
+
+
+                
+                let synonymsWords = [];
+                let sinonimos="";
+                 let  uniqueSynonyms = [];
+
+                if(DictionaryData[cleanToken]){
+                
+                        //Extraer string de DictionaryData[cleanToken].synonyms
+                        sinonimos= DictionaryData[cleanToken].synonyms;
+                        //Dividir string sinonimos en palabras...
+                        synonymsWords =  sinonimos.split(',').map(p => p.trim());
+
+           
+
+                    
+                       //console.log("palabras:")
+                        synonymsWords.forEach(palabra => {
+                            if (!uniqueSynonyms.includes(palabra) && palabra !== "") {
+                                uniqueSynonyms.push(palabra);
+                                //console.log(palabra);
+                                
+                
+                            
+                            }
+                        });
+                        
+                }
+
+                // Solo añade sinónimos si no encontró la palabra exacta.
+                if(options.length==0){
+                    if(uniqueSynonyms.length>0){
+                  uniqueSynonyms.forEach(palabra =>{
+                                if (pictogramData[palabra]) {
+                                    options.push(...extractOptions(pictogramData[palabra]));
+                                
+                                    
+                                     
+                                }
+                        });
+                    }
+
+                }
+
 
                 // Si no hay mapeo en el JSON, mostramos el token original como respaldo para ver si la fuente afecta a los caracteres
                 let activeChar = options.length > 0 ? String.fromCodePoint(parseInt(options[0], 16)) : token; 
+
+                
+             
                 pictoBox.textContent = activeChar;
 
                 wrapper.appendChild(pictoBox);
@@ -201,6 +246,7 @@
                     const dropdown = document.createElement('div');
                     dropdown.className = 'absolute bottom-full mb-2 hidden group-hover:flex flex-wrap gap-1 bg-white border border-slate-300 shadow-lg rounded-lg p-2 z-25 max-w-xs';
 
+                    
                     options.forEach(opt => {
                         const optBtn = document.createElement('button');
                         optBtn.style.fontFamily = `'${customFontName}', sans-serif`;
@@ -209,7 +255,9 @@
                         optBtn.title = "Seleccionar esta variante";
                         optBtn.onclick = (e) => {
                             e.stopPropagation();
-                            pictoBox.textContent = String.fromCodePoint(parseInt(opt, 16));
+                            activeChar=optBtn.textContent;
+                            pictoBox.textContent=activeChar;
+                       
                         };
                         dropdown.appendChild(optBtn);
                     });
