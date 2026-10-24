@@ -151,7 +151,12 @@
   
 
            
+            // PARTE 1: Buscar por sintagmas.
 
+
+
+
+            //  PARTE 2: Buscar por palabra.
             tokens.forEach(token => {
                 const cleanToken = token.toLowerCase().trim();
 
@@ -216,6 +221,10 @@
                         
                 }
 
+                // Si no hay mapeo en el JSON, mostramos el token original como respaldo para ver si la fuente afecta a los caracteres
+                let activeChar = options.length > 0 ? String.fromCodePoint(parseInt(options[0], 16)) : token; 
+
+
                 // Solo añade sinónimos si no encontró la palabra exacta.
                 if(options.length==0){
                     if(uniqueSynonyms.length>0){
@@ -232,9 +241,7 @@
                 }
 
 
-                // Si no hay mapeo en el JSON, mostramos el token original como respaldo para ver si la fuente afecta a los caracteres
-                let activeChar = options.length > 0 ? String.fromCodePoint(parseInt(options[0], 16)) : token; 
-
+                
                 
              
                 pictoBox.textContent = activeChar;

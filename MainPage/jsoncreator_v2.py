@@ -38,19 +38,26 @@ with open("mapa_pictogramas.csv", mode="r", encoding="utf-8-sig", newline="") as
             continue
 
         # Guarda también el sintagma completo.
-        if nombre not in mapa_sintagmas:
+        if " " in nombre and nombre not in mapa_sintagmas:
             mapa_sintagmas[nombre] = []
+        if nombre in mapa_sintagmas:
+            if codigo not in mapa_sintagmas[nombre] :
+                mapa_sintagmas[nombre].append(codigo)
 
-        if codigo not in mapa_sintagmas[nombre]:
-            mapa_sintagmas[nombre].append(codigo)
+                
+                
+        # Si el nombre completo es un conector,
+        # se conserva como una palabra indexable.
+        if nombre in conectores:
+            palabras = [nombre]
+        else:
+            # Divide el sintagma en palabras y elimina puntuación.
+            palabras = re.findall(r"[^\W_]+", nombre, flags=re.UNICODE)
 
-        # Divide el sintagma en palabras y elimina puntuación.
-        palabras = re.findall(r"[^\W_]+", nombre, flags=re.UNICODE)
+            # Excluye los conectores únicamente dentro de sintagmas.
+            palabras = [p for p in palabras if p not in conectores]
 
         for palabra in palabras:
-            if palabra in conectores:
-                continue
-
             if palabra not in mapa_pictogramas:
                 mapa_pictogramas[palabra] = []
 
