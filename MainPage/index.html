@@ -300,9 +300,74 @@
 
             const tokens = text.match(/([a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]+|[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]|\s+)/g) || [];
 
-            if(tokens.length > 0) {
+            if(tokens.length > 1) {
                 for(let i = 0; i < tokens.length; i++) {
                     let options = [];
+                    let optionTitles = [];
+                    
+                    
+                    
+                    for(let j = tokens.length; j>i;j--){
+                        let cadena=tokens[i].toLowerCase().trim();
+
+                        for(let k = 1; k<j ; k++){
+                            cadena=cadena+" "+tokens[i].toLowerCase().trim();
+
+                        }
+
+                         if (sintagmaData[cadena]) {
+
+                            
+
+
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'picto-wrapper';
+
+                            const pictoBox = document.createElement('div');
+                            pictoBox.className = 'picto-box';
+
+                            const labelBox = document.createElement('span');
+                            labelBox.className = 'picto-label';
+                            labelBox.textContent = token;
+
+
+                            options = extractOptions(sintagmaData[cadena][codigos]);
+                            optionTitles = extractOptions(sintagmaData[cadena][tags]);
+
+                            wrapper.appendChild(pictoBox);
+                            wrapper.appendChild(labelBox);
+
+                            if (options.length > 1) {
+                                const dropdown = document.createElement('div');
+                                dropdown.className = 'picto-dropdown';
+
+                                for(i=0;i<options.length;i++) {
+                                    opt=options[i];
+                                    const optBtn = document.createElement('button');
+                                    optBtn.className = 'opt-btn';
+                                    optBtn.textContent = String.fromCodePoint(parseInt(opt, 16));
+                                    optBtn.title = optionTitles[i];
+                                    optBtn.onclick = (e) => {
+                                        e.stopPropagation();
+                                        activeChar = optBtn.textContent;
+                                        pictoBox.textContent = activeChar;
+                                    };
+                                    dropdown.appendChild(optBtn);
+                                };
+
+                                wrapper.appendChild(dropdown);
+                            }
+
+                            container.appendChild(wrapper);
+
+
+                         }
+
+
+                    }
+                    
+                    
+                    
                     let token = tokens[i];
                     const cleanToken = token.toLowerCase().trim();
 
@@ -324,8 +389,14 @@
                     labelBox.textContent = token;
 
                     if (pictogramData[cleanToken]) {
-                        options = extractOptions(pictogramData[cleanToken]);
+                        options = extractOptions(pictogramData[cleanToken][codigos]);
+                        optionTitles = extractOptions(pictogramData[cleanToken][tags]);
                     }
+
+
+                    let activeChar = options.length > 0 ? String.fromCodePoint(parseInt(options[0], 16)) : token; 
+                    pictoBox.textContent = activeChar;
+
 
                     // Solo añade sinónimos si no encontró la palabra exacta.
                     if(options.length == 0) {
@@ -347,14 +418,14 @@
                         if(uniqueSynonyms.length > 0){
                             uniqueSynonyms.forEach(palabra => {
                                 if (pictogramData[palabra]) {
-                                    options.push(...extractOptions(pictogramData[palabra]));
+                                    options.push(...extractOptions(pictogramData[palabra][codigos]));
+                                    optionTitles.push(...extractOptions(pictogramData[palabra][tags]));
                                 }
                             });
                         }
                     }
 
-                    let activeChar = options.length > 0 ? String.fromCodePoint(parseInt(options[0], 16)) : token; 
-                    pictoBox.textContent = activeChar;
+                    
 
                     wrapper.appendChild(pictoBox);
                     wrapper.appendChild(labelBox);
@@ -363,18 +434,19 @@
                         const dropdown = document.createElement('div');
                         dropdown.className = 'picto-dropdown';
 
-                        options.forEach(opt => {
+                        for(i=0;i<options.length;i++) {
+                            opt=options[i];
                             const optBtn = document.createElement('button');
                             optBtn.className = 'opt-btn';
                             optBtn.textContent = String.fromCodePoint(parseInt(opt, 16));
-                            optBtn.title = "Seleccionar esta variante";
+                            optBtn.title = optionTitles[i];
                             optBtn.onclick = (e) => {
                                 e.stopPropagation();
                                 activeChar = optBtn.textContent;
                                 pictoBox.textContent = activeChar;
                             };
                             dropdown.appendChild(optBtn);
-                        });
+                        };
 
                         wrapper.appendChild(dropdown);
                     }

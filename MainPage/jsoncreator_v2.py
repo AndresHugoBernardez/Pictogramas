@@ -1,4 +1,3 @@
-
 import csv
 import json
 import re
@@ -16,6 +15,11 @@ conectores = {
     "que", "se"
 }
 
+#Numeros
+numeros = {
+"0","1","2","3","4","5","6","7","9","0"
+}
+
 # palabra -> lista de códigos Unicode sin duplicados
 mapa_pictogramas = {}
 
@@ -31,21 +35,27 @@ with open("mapa_pictogramas.csv", mode="r", encoding="utf-8-sig", newline="") as
     reader = csv.DictReader(f)
 
     for row in reader:
-        nombre = normalizar(row["nombre"])
+        tag=row["nombre"]
+        nombre = normalizar(tag)
         codigo = row["codigo_unicode"][2:] 
 
         if not nombre or not codigo:
             continue
 
-        # Guarda también el sintagma completo.
-        if " " in nombre and nombre not in mapa_sintagmas:
-            mapa_sintagmas[nombre] = []
-        if nombre in mapa_sintagmas:
-            if codigo not in mapa_sintagmas[nombre] :
-                mapa_sintagmas[nombre].append(codigo)
+         # Limpiar sufijos numéricos al final del nombre (ej: '_1', ' 1', '_02', etc.)
+        nombre = re.sub(r'[\s_]+\d+$', '', nombre).strip()
 
-                
-                
+        # 1. Guarda en mapa_sintagmas con la estructura {"codigos": [...], "tags": [...]}
+        if " " in nombre:
+            if nombre not in mapa_sintagmas:
+                mapa_sintagmas[nombre] = {
+                    "codigos": [],
+                    "tags": []
+                }
+            if codigo not in mapa_sintagmas[nombre]["codigos"]:
+                mapa_sintagmas[nombre]["codigos"].append(codigo)
+                mapa_sintagmas[nombre]["tags"].append(tag)
+
         # Si el nombre completo es un conector,
         # se conserva como una palabra indexable.
         if nombre in conectores:
@@ -57,15 +67,17 @@ with open("mapa_pictogramas.csv", mode="r", encoding="utf-8-sig", newline="") as
             # Excluye los conectores únicamente dentro de sintagmas.
             palabras = [p for p in palabras if p not in conectores]
 
+        # 2. Guarda en mapa_pictogramas con la misma estructura
         for palabra in palabras:
             if palabra not in mapa_pictogramas:
-                mapa_pictogramas[palabra] = []
+                mapa_pictogramas[palabra] = {
+                    "codigos": [],
+                    "tags": []
+                }
 
-            if codigo not in mapa_pictogramas[palabra]:
-                mapa_pictogramas[palabra].append(codigo)
-
-
-
+            if codigo not in mapa_pictogramas[palabra]["codigos"]:
+                mapa_pictogramas[palabra]["codigos"].append(codigo)
+                mapa_pictogramas[palabra]["tags"].append(tag)
 
 
 with open("sclera_map.json", "w", encoding="utf-8") as f:
