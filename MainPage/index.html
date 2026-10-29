@@ -169,7 +169,6 @@
             overscroll-behavior: contain;
         }
 
-        /* Estilo personalizado para la barra de desplazamiento del desplegable */
         .picto-dropdown::-webkit-scrollbar {
             width: 6px;
         }
@@ -238,7 +237,8 @@
 
     <script>
         let pictogramData = {}; 
-        let DictionaryData= {};
+        let DictionaryData = {};
+        let sintagmaData = {};
         const customFontName = 'DynamicPictogramFont';
 
         // 1. Carga automática inicial por defecto
@@ -250,17 +250,17 @@
                     console.log("JSON por defecto cargado exitosamente. Claves totales:", Object.keys(pictogramData).length);
                 }
             } catch (e) {
-                console.log("Nota: Carga automática de JSON omitida.");
+                console.log("Nota: Carga automática de JSON sclera_map omitida.");
             }
 
             try {
                 const response = await fetch('https://andreshugobernardez.github.io/pagesAB/PictoWriter/sclera_sintagmas_map.json');
                 if (response.ok) {
                     sintagmaData = await response.json();
-                    console.log("JSON Sintagmas MAP por defecto cargado exitosamente. Claves totales:", Object.keys(sintagmaData).length);
+                    console.log("JSON Sintagmas MAP cargado exitosamente. Claves totales:", Object.keys(sintagmaData).length);
                 }
             } catch (e) {
-                console.log("Nota: Carga automática de JSON omitida.");
+                console.log("Nota: Carga automática de JSON sintagmas omitida.");
             }
 
             try {
@@ -270,7 +270,7 @@
                     console.log("Diccionario cargado", Object.keys(DictionaryData).length);
                 }
             } catch (e) {
-                console.log("Nota: Carga de diccionario fallido");
+                console.log("Nota: Carga de diccionario fallida");
             }
         }
 
@@ -300,82 +300,109 @@
 
             const tokens = text.match(/([a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]+|[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]|\s+)/g) || [];
 
-            if(tokens.length > 1) {
-                for(let i = 0; i < tokens.length; i++) {
-                    let options = [];
-                    let optionTitles = [];
-                    
-                    
-                    
-                    for(let j = tokens.length; j>i;j--){
-                        let cadena=tokens[i].toLowerCase().trim();
+            let i = 0;
+            while (i < tokens.length) {
+                let token = tokens[i];
+                let cleanToken = token.toLowerCase().trim();
 
-                        for(let k = 1; k<j ; k++){
-                            cadena=cadena+" "+tokens[i].toLowerCase().trim();
+                // Si es un espacio o separador en blanco
+                if (!cleanToken) {
+                    const spaceSpan = document.createElement('span');
+                    spaceSpan.className = 'spacer';
+                    container.appendChild(spaceSpan);
+                    i++;
+                    continue;
+                }
 
-                        }
+                let options = [];
+                let optionTitles = [];
+                let matchedPhrase = false;
 
-                         if (sintagmaData[cadena]) {
+                // 1. Intentar buscar sintagmas (frases de mayor a menor longitud desde la posición 'i')
+               if(tokens.length> 2 ) for (let j = tokens.length; j > i; j--) {
+                    let cadena = "";
+                    for (let k = i; k < j; k++) {
+                        if(tokens[k]!=" ")
+                        cadena += (k === i ? "" : " ") + tokens[k].toLowerCase().trim();
+                    }
 
-                            
+                    if (sintagmaData && sintagmaData[cadena]) {
+                        options = extractOptions(sintagmaData[cadena]["codigos"]);
+                        optionTitles = extractOptions(sintagmaData[cadena]["tags"]);
 
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'picto-wrapper';
 
-                            const wrapper = document.createElement('div');
-                            wrapper.className = 'picto-wrapper';
+                        const pictoBox = document.createElement('div');
+                        pictoBox.className = 'picto-box';
 
-                            const pictoBox = document.createElement('div');
-                            pictoBox.className = 'picto-box';
+                        const labelBox = document.createElement('span');
+                        labelBox.className = 'picto-label';
+                        labelBox.textContent = cadena;
 
-                            const labelBox = document.createElement('span');
-                            labelBox.className = 'picto-label';
-                            labelBox.textContent = token;
+                        let activeChar = options.length > 0 ? String.fromCodePoint(parseInt(options[0], 16)) : cadena; 
+                        let activeTitle = options.length > 0 && optionTitles.length > 0 ? optionTitles[0] : cadena;
 
+                        pictoBox.textContent = activeChar;
+                        pictoBox.title = activeTitle;
 
-                            options = extractOptions(sintagmaData[cadena][codigos]);
-                            optionTitles = extractOptions(sintagmaData[cadena][tags]);
+                        wrapper.appendChild(pictoBox);
+                        wrapper.appendChild(labelBox);
 
-                            wrapper.appendChild(pictoBox);
-                            wrapper.appendChild(labelBox);
+                        if (options.length > 1) {
+                            const dropdown = document.createElement('div');
+                            dropdown.className = 'picto-dropdown';
 
-                            if (options.length > 1) {
-                                const dropdown = document.createElement('div');
-                                dropdown.className = 'picto-dropdown';
-
-                                for(i=0;i<options.length;i++) {
-                                    opt=options[i];
-                                    const optBtn = document.createElement('button');
-                                    optBtn.className = 'opt-btn';
-                                    optBtn.textContent = String.fromCodePoint(parseInt(opt, 16));
-                                    optBtn.title = optionTitles[i];
-                                    optBtn.onclick = (e) => {
-                                        e.stopPropagation();
-                                        activeChar = optBtn.textContent;
-                                        pictoBox.textContent = activeChar;
-                                    };
-                                    dropdown.appendChild(optBtn);
+                            for (let q = 0; q < options.length; q++) {
+                                let opt = options[q];
+                                const optBtn = document.createElement('button');
+                                optBtn.className = 'opt-btn';
+                                optBtn.textContent = String.fromCodePoint(parseInt(opt, 16));
+                                optBtn.title = optionTitles[q] || '';
+                                optBtn.onclick = (e) => {
+                                    e.stopPropagation();
+                                    pictoBox.textContent = optBtn.textContent;
                                 };
-
-                                wrapper.appendChild(dropdown);
+                                dropdown.appendChild(optBtn);
                             }
 
-                            container.appendChild(wrapper);
+                            wrapper.appendChild(dropdown);
+                        }
 
+                        container.appendChild(wrapper);
 
-                         }
-
-
+                        // Avanzamos el índice 'i' saltando las palabras que formaron el sintagma
+                        i = j;
+                        matchedPhrase = true;
+                        break; // Encontramos el sintagma más largo para esta posición, salimos del bucle j
                     }
-                    
-                    
-                    
-                    let token = tokens[i];
-                    const cleanToken = token.toLowerCase().trim();
+                }
 
-                    if (!cleanToken) {
-                        const spaceSpan = document.createElement('span');
-                        spaceSpan.className = 'spacer';
-                        container.appendChild(spaceSpan);
-                        continue;
+                // 2. Si no hizo match con ningún sintagma, procesamos palabra por palabra
+                if (!matchedPhrase) {
+                    if (pictogramData[cleanToken]) {
+                        options = extractOptions(pictogramData[cleanToken]["codigos"]);
+                        optionTitles = extractOptions(pictogramData[cleanToken]["tags"]);
+                    }
+
+                    // Buscar en sinónimos si no está en el mapa principal
+                    if (options.length === 0 && DictionaryData[cleanToken]) {
+                        let sinonimos = DictionaryData[cleanToken].synonyms || "";
+                        let synonymsWords = sinonimos.split(',').map(p => p.trim());
+                        let uniqueSynonyms = [];
+
+                        synonymsWords.forEach(palabra => {
+                            if (!uniqueSynonyms.includes(palabra) && palabra !== "") {
+                                uniqueSynonyms.push(palabra);
+                            }
+                        });
+
+                        uniqueSynonyms.forEach(palabra => {
+                            if (pictogramData[palabra]) {
+                                options.push(...extractOptions(pictogramData[palabra]["codigos"]));
+                                optionTitles.push(...extractOptions(pictogramData[palabra]["tags"]));
+                            }
+                        });
                     }
 
                     const wrapper = document.createElement('div');
@@ -388,44 +415,11 @@
                     labelBox.className = 'picto-label';
                     labelBox.textContent = token;
 
-                    if (pictogramData[cleanToken]) {
-                        options = extractOptions(pictogramData[cleanToken][codigos]);
-                        optionTitles = extractOptions(pictogramData[cleanToken][tags]);
-                    }
-
-
                     let activeChar = options.length > 0 ? String.fromCodePoint(parseInt(options[0], 16)) : token; 
+                    let activeTitle = options.length > 0 && optionTitles.length > 0 ? optionTitles[0] : token;
+
                     pictoBox.textContent = activeChar;
-
-
-                    // Solo añade sinónimos si no encontró la palabra exacta.
-                    if(options.length == 0) {
-                        let synonymsWords = [];
-                        let sinonimos = "";
-                        let uniqueSynonyms = [];
-
-                        if(DictionaryData[cleanToken]){
-                            sinonimos = DictionaryData[cleanToken].synonyms;
-                            synonymsWords = sinonimos.split(',').map(p => p.trim());
-
-                            synonymsWords.forEach(palabra => {
-                                if (!uniqueSynonyms.includes(palabra) && palabra !== "") {
-                                    uniqueSynonyms.push(palabra);
-                                }
-                            });
-                        }
-
-                        if(uniqueSynonyms.length > 0){
-                            uniqueSynonyms.forEach(palabra => {
-                                if (pictogramData[palabra]) {
-                                    options.push(...extractOptions(pictogramData[palabra][codigos]));
-                                    optionTitles.push(...extractOptions(pictogramData[palabra][tags]));
-                                }
-                            });
-                        }
-                    }
-
-                    
+                    pictoBox.title = activeTitle;
 
                     wrapper.appendChild(pictoBox);
                     wrapper.appendChild(labelBox);
@@ -434,24 +428,24 @@
                         const dropdown = document.createElement('div');
                         dropdown.className = 'picto-dropdown';
 
-                        for(i=0;i<options.length;i++) {
-                            opt=options[i];
+                        for (let p = 0; p < options.length; p++) {
+                            let opt = options[p];
                             const optBtn = document.createElement('button');
                             optBtn.className = 'opt-btn';
                             optBtn.textContent = String.fromCodePoint(parseInt(opt, 16));
-                            optBtn.title = optionTitles[i];
+                            optBtn.title = optionTitles[p] || '';
                             optBtn.onclick = (e) => {
                                 e.stopPropagation();
-                                activeChar = optBtn.textContent;
-                                pictoBox.textContent = activeChar;
+                                pictoBox.textContent = optBtn.textContent;
                             };
                             dropdown.appendChild(optBtn);
-                        };
+                        }
 
                         wrapper.appendChild(dropdown);
                     }
 
                     container.appendChild(wrapper);
+                    i++; // Avanzamos a la siguiente palabra
                 }
             }
         }
