@@ -69,7 +69,6 @@
             color: #334155;
             margin-bottom: 0.5rem;
         }
-
         textarea {
             width: 100%;
             padding: 1rem;
@@ -133,7 +132,7 @@
 
         .picto-box {
             font-family: 'DynamicPictogramFont', sans-serif;
-            font-size: 2.25rem;
+            font-size: 4rem;
             color: #4338ca;
             height: 3.5rem;
             display: flex;
@@ -164,7 +163,7 @@
             padding: 0.5rem;
             z-index: 25;
             max-width: 20rem;
-            max-height: 12rem;
+            max-height: 20rem;
             overflow-y: auto;
             overscroll-behavior: contain;
         }
@@ -193,7 +192,7 @@
 
         .opt-btn {
             font-family: 'DynamicPictogramFont', sans-serif;
-            font-size: 1.5rem;
+            font-size: 2.5rem;
             padding: 0.5rem;
             border-radius: 0.25rem;
             border: 1px solid transparent;
@@ -206,6 +205,11 @@
             background-color: #eef2ff;
             border-color: #a5b4fc;
         }
+        .infoLabelClass{
+            font-size: 0.7rem;
+            
+        }
+      
 
         .spacer {
             width: 0.5rem;
@@ -288,6 +292,11 @@
             return [String(entry)];
         }
 
+                
+
+
+        
+
         function renderPictograms() {
             const text = document.getElementById('textInput').value;
             const container = document.getElementById('outputContainer');
@@ -299,6 +308,8 @@
             }
 
             const tokens = text.match(/([a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]+|[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]|\s+)/g) || [];
+
+
 
             let i = 0;
             while (i < tokens.length) {
@@ -335,11 +346,13 @@
 
                         const pictoBox = document.createElement('div');
                         pictoBox.className = 'picto-box';
+                        pictoBox.value=0;
+                     
 
                         const labelBox = document.createElement('span');
                         labelBox.className = 'picto-label';
                         labelBox.textContent = cadena;
-
+                      
                         let activeChar = options.length > 0 ? String.fromCodePoint(parseInt(options[0], 16)) : cadena; 
                         let activeTitle = options.length > 0 && optionTitles.length > 0 ? optionTitles[0] : cadena;
 
@@ -358,12 +371,21 @@
                                 const optBtn = document.createElement('button');
                                 optBtn.className = 'opt-btn';
                                 optBtn.textContent = String.fromCodePoint(parseInt(opt, 16));
-                                optBtn.title = optionTitles[q] || '';
+                                optBtn.title = "Seleccionar";
                                 optBtn.onclick = (e) => {
                                     e.stopPropagation();
                                     pictoBox.textContent = optBtn.textContent;
+                                    pictoBox.title = optionTitles[q] || '' ;
+                                    pictoBox.value=q;
                                 };
                                 dropdown.appendChild(optBtn);
+                                                                
+                                const infoLabel = document.createElement('p');
+                                infoLabel.innerHTML =optionTitles[q] || '' ;
+                                infoLabel.className = 'infoLabelClass';    
+                                dropdown.appendChild(infoLabel);
+
+                                
                             }
 
                             wrapper.appendChild(dropdown);
@@ -433,12 +455,20 @@
                             const optBtn = document.createElement('button');
                             optBtn.className = 'opt-btn';
                             optBtn.textContent = String.fromCodePoint(parseInt(opt, 16));
-                            optBtn.title = optionTitles[p] || '';
+                            optBtn.title = "Seleccionar"
                             optBtn.onclick = (e) => {
                                 e.stopPropagation();
                                 pictoBox.textContent = optBtn.textContent;
+                                pictoBox.title = optionTitles[p] || '' ;
+                                pictoBox.value=p;
                             };
                             dropdown.appendChild(optBtn);
+
+                            const infoLabel = document.createElement('p');
+                            infoLabel.innerHTML =optionTitles[p] || '' ;
+                            infoLabel.className = 'infoLabelClass';    
+                            dropdown.appendChild(infoLabel);
+
                         }
 
                         wrapper.appendChild(dropdown);
