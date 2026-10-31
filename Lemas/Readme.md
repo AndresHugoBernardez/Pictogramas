@@ -1,2 +1,2 @@
-Lemmas Dictionare
-Source from: https://github.com/michmech/lemmatization-lists
+Lemmas Dictionary Source from: 
+https://github.com/michmech/lemmatization-lists
