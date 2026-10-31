@@ -243,6 +243,7 @@
         let pictogramData = {}; 
         let DictionaryData = {};
         let sintagmaData = {};
+		let LemasData = {};
         const customFontName = 'DynamicPictogramFont';
 
         // 1. Carga automática inicial por defecto
@@ -275,6 +276,15 @@
                 }
             } catch (e) {
                 console.log("Nota: Carga de diccionario fallida");
+            }
+			try {
+                const response = await fetch('https://andreshugobernardez.github.io/pagesAB/PictoWriter/dictLemmas.json');
+                if (response.ok) {
+                    LemasData = await response.json();
+                    console.log("Diccionario de Lemas cargado", Object.keys(LemasData).length);
+                }
+            } catch (e) {
+                console.log("Nota: Carga de diccionario de Lemas fallida");
             }
         }
 
@@ -402,30 +412,64 @@
 
                 // 2. Si no hizo match con ningún sintagma, procesamos palabra por palabra
                 if (!matchedPhrase) {
-                    if (pictogramData[cleanToken]) {
+                    if (pictogramData[cleanToken])  {
                         options = extractOptions(pictogramData[cleanToken]["codigos"]);
                         optionTitles = extractOptions(pictogramData[cleanToken]["tags"]);
                     }
+                    else {
+                        
+                        if( pictogramData[LemasData[cleanToken]]){
+                        options = extractOptions(pictogramData[LemasData[cleanToken]]["codigos"]);
+                        optionTitles = extractOptions(pictogramData[LemasData[cleanToken]]["tags"]);
+                        }
+                    }
+
 
                     // Buscar en sinónimos si no está en el mapa principal
-                    if (options.length === 0 && DictionaryData[cleanToken]) {
-                        let sinonimos = DictionaryData[cleanToken].synonyms || "";
-                        let synonymsWords = sinonimos.split(',').map(p => p.trim());
-                        let uniqueSynonyms = [];
+                    if (options.length === 0){
+                         if (DictionaryData[cleanToken] ){
+                            let sinonimos = DictionaryData[cleanToken].synonyms ||"";
+                            let synonymsWords = sinonimos.split(',').map(p => p.trim());
+                            let uniqueSynonyms = [];
 
-                        synonymsWords.forEach(palabra => {
-                            if (!uniqueSynonyms.includes(palabra) && palabra !== "") {
-                                uniqueSynonyms.push(palabra);
-                            }
-                        });
+                            synonymsWords.forEach(palabra => {
+                                if (!uniqueSynonyms.includes(palabra) && palabra !== "") {
+                                    uniqueSynonyms.push(palabra);
+                                }
+                            });
 
-                        uniqueSynonyms.forEach(palabra => {
-                            if (pictogramData[palabra]) {
-                                options.push(...extractOptions(pictogramData[palabra]["codigos"]));
-                                optionTitles.push(...extractOptions(pictogramData[palabra]["tags"]));
-                            }
-                        });
+                            uniqueSynonyms.forEach(palabra => {
+                                if (pictogramData[palabra]) {
+                                    options.push(...extractOptions(pictogramData[palabra]["codigos"]));
+                                    optionTitles.push(...extractOptions(pictogramData[palabra]["tags"]));
+                                }
+                            });
+                        } else if (DictionaryData[LemasData[cleanToken]] ){
+                            let sinonimos = DictionaryData[LemasData[cleanToken]].synonyms ||"";
+                            let synonymsWords = sinonimos.split(',').map(p => p.trim());
+                            let uniqueSynonyms = [];
+
+                            synonymsWords.forEach(palabra => {
+                                if (!uniqueSynonyms.includes(palabra) && palabra !== "") {
+                                    uniqueSynonyms.push(palabra);
+                                }
+                            });
+
+                            uniqueSynonyms.forEach(palabra => {
+                                if (pictogramData[palabra]) {
+                                    options.push(...extractOptions(pictogramData[palabra]["codigos"]));
+                                    optionTitles.push(...extractOptions(pictogramData[palabra]["tags"]));
+                                }
+                            });
+                        }
+
                     }
+					
+					
+					
+					
+					
+					
 
                     const wrapper = document.createElement('div');
                     wrapper.className = 'picto-wrapper';
