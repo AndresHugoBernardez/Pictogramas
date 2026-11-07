@@ -246,6 +246,105 @@
 		let LemasData = {};
         const customFontName = 'DynamicPictogramFont';
 
+        //opciones de Estado:
+        const OLD=0;
+        const NEW=1;
+        const CHANGE=-1;
+    
+
+       
+
+    //--------------------------------
+
+        //Agregar pictograma en posicion
+
+        function agregarPictograma(i,token,options, optionTitles,fin,container){
+
+
+
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'picto-wrapper';
+
+                    const pictoBox = document.createElement('div');
+                    pictoBox.className = 'picto-box';
+
+                    const labelBox = document.createElement('span');
+                    labelBox.className = 'picto-label';
+                    labelBox.textContent = token;
+
+                    let activeChar = options.length > 0 ? String.fromCodePoint(parseInt(options[0], 16)) : token; 
+                    let activeTitle = options.length > 0 && optionTitles.length > 0 ? optionTitles[0] : token;
+
+                    pictoBox.textContent = activeChar;
+                    pictoBox.title = activeTitle;
+
+                    wrapper.appendChild(pictoBox);
+                    wrapper.appendChild(labelBox);
+
+                    if (options.length > 1) {
+                        const dropdown = document.createElement('div');
+                        dropdown.className = 'picto-dropdown';
+
+                        for (let p = 0; p < options.length; p++) {
+                            let opt = options[p];
+                            const optBtn = document.createElement('button');
+                            optBtn.className = 'opt-btn';
+                            optBtn.textContent = String.fromCodePoint(parseInt(opt, 16));
+                            optBtn.title = "Seleccionar"
+                            optBtn.onclick = (e) => {
+                                e.stopPropagation();
+                                pictoBox.textContent = optBtn.textContent;
+                                pictoBox.title = optionTitles[p] || '' ;
+                                pictoBox.value=p;
+                            };
+                            dropdown.appendChild(optBtn);
+
+                            const infoLabel = document.createElement('p');
+                            infoLabel.innerHTML =optionTitles[p] || '' ;
+                            infoLabel.className = 'infoLabelClass';    
+                            dropdown.appendChild(infoLabel);
+
+                        }
+
+                        wrapper.appendChild(dropdown);
+                    }
+
+
+                    if(container.children[i])
+                    container.children[i].before(wrapper);
+                    else if(i>=container.children.length)
+                    container.appendChild(wrapper);
+                
+                    
+                    /*
+                    if(!fin){
+                
+                    const spaceSpan = document.createElement('span');
+                    spaceSpan.className = 'spacer';
+                
+                    if(container.children[i])
+                    container.children[i].before(spaceSpan);
+                    else if(i>=container.children.length)
+                    container.appendChild(spaceSpan);
+                
+                    }*/
+                    return(wrapper);
+
+
+        }
+
+
+
+
+    //--------------------------------
+
+
+
+
+
+
+
+
         // 1. Carga automática inicial por defecto
         async function loadDefaults() {
             try {
@@ -302,227 +401,481 @@
             return [String(entry)];
         }
 
-                
-
-
+        var textboxEl;
+        var oldPalabras = [];
+       
+ var logCadena="";
+ var logCadena2="";
+ var logCadena3="";
         
 
         function renderPictograms() {
             const text = document.getElementById('textInput').value;
             const container = document.getElementById('outputContainer');
-            container.innerHTML = '';
 
-            if (!text.trim()) {
-                container.innerHTML = '<span class="empty-placeholder">Los pictogramas aparecerán aquí mientras escribes...</span>';
-                return;
-            }
-
-            const tokens = text.match(/([a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]+|[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]|\s+)/g) || [];
+            //--------------------------
 
 
+                  
+                       
 
-            let i = 0;
-            while (i < tokens.length) {
-                let token = tokens[i];
-                let cleanToken = token.toLowerCase().trim();
+                       
 
-                // Si es un espacio o separador en blanco
-                if (!cleanToken) {
-                    const spaceSpan = document.createElement('span');
-                    spaceSpan.className = 'spacer';
-                    container.appendChild(spaceSpan);
-                    i++;
-                    continue;
-                }
+                            let palabras = [];
+                            let ini_Arr = 0;
+                           
+                            let newOrder =[];
+                            let eliminados = [];
+                            palabras = text.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]+|[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]/g) || [];
 
-                let options = [];
-                let optionTitles = [];
-                let matchedPhrase = false;
+                          
 
-                // 1. Intentar buscar sintagmas (frases de mayor a menor longitud desde la posición 'i')
-               if(tokens.length> 2 ) for (let j = tokens.length; j > i; j--) {
-                    let cadena = "";
-                    for (let k = i; k < j; k++) {
-                        if(tokens[k]!=" ")
-                        cadena += (k === i ? "" : " ") + tokens[k].toLowerCase().trim();
-                    }
-
-                    if (sintagmaData && sintagmaData[cadena]) {
-                        options = extractOptions(sintagmaData[cadena]["codigos"]);
-                        optionTitles = extractOptions(sintagmaData[cadena]["tags"]);
-
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'picto-wrapper';
-
-                        const pictoBox = document.createElement('div');
-                        pictoBox.className = 'picto-box';
-                        pictoBox.value=0;
-                     
-
-                        const labelBox = document.createElement('span');
-                        labelBox.className = 'picto-label';
-                        labelBox.textContent = cadena;
                       
-                        let activeChar = options.length > 0 ? String.fromCodePoint(parseInt(options[0], 16)) : cadena; 
-                        let activeTitle = options.length > 0 && optionTitles.length > 0 ? optionTitles[0] : cadena;
+                            // 1. Conservar prefijo sin modificaciones
+                            for (
+                                ini_Arr = 0;
+                                ini_Arr < palabras.length &&
+                                ini_Arr < oldPalabras.length &&
+                                palabras[ini_Arr] === oldPalabras[ini_Arr].palabra;
+                               
+                                ini_Arr++
+                            ) {
+                               
+                                newOrder.push( 
+                                    {status: OLD,
+                                     element: ((oldPalabras[ini_Arr].element)?oldPalabras[ini_Arr].element:null),
+                                     palabra: oldPalabras[ini_Arr].palabra,
+                                     posicion: ini_Arr,
+                                     caracter: oldPalabras[ini_Arr].caracter,
+                                     tag:oldPalabras[ini_Arr].tag,
+                                     sintagma: oldPalabras[ini_Arr].sintagma,
+                                     sintagmaPos:oldPalabras[ini_Arr].sintagmaPos});
+                            }
 
-                        pictoBox.textContent = activeChar;
-                        pictoBox.title = activeTitle;
+                            // 2. Buscar coincidencias después de la primera diferencia
+                            let usados = new Array(oldPalabras.length).fill(false);
 
-                        wrapper.appendChild(pictoBox);
-                        wrapper.appendChild(labelBox);
+                            // Marcar como utilizados los elementos del prefijo
+                            for (let i_Arr = 0; i_Arr < ini_Arr; i_Arr++) {
+                                usados[i_Arr] = true;
+                            }
 
-                        if (options.length > 1) {
-                            const dropdown = document.createElement('div');
-                            dropdown.className = 'picto-dropdown';
+                            
 
-                            for (let q = 0; q < options.length; q++) {
-                                let opt = options[q];
-                                const optBtn = document.createElement('button');
-                                optBtn.className = 'opt-btn';
-                                optBtn.textContent = String.fromCodePoint(parseInt(opt, 16));
-                                optBtn.title = "Seleccionar";
-                                optBtn.onclick = (e) => {
-                                    e.stopPropagation();
-                                    pictoBox.textContent = optBtn.textContent;
-                                    pictoBox.title = optionTitles[q] || '' ;
-                                    pictoBox.value=q;
-                                };
-                                dropdown.appendChild(optBtn);
-                                                                
-                                const infoLabel = document.createElement('p');
-                                infoLabel.innerHTML =optionTitles[q] || '' ;
-                                infoLabel.className = 'infoLabelClass';    
-                                dropdown.appendChild(infoLabel);
+                            backPos=newOrder.length;
+
+
+                            // 3. Recorrer las nuevas palabras
+                            for (let k_Arr = palabras.length-1; k_Arr >= ini_Arr ; k_Arr--) {
+
+                                let encontrado = -1;
+                            
+                                // Buscar palabra anterior disponible
+                                for (let l_Arr = oldPalabras.length-1; !usados[l_Arr] && l_Arr >=ini_Arr ; l_Arr--) {
+
+                                    if (
+                                        !usados[l_Arr] &&
+                                        palabras[k_Arr] === oldPalabras[l_Arr].palabra
+                                    ) {
+                                        encontrado = l_Arr;
+                                        break;
+                                    }
+                                }
+
+
+                                
+
+                                if (encontrado !== -1) {
+
+                                    // Reutilizar palabra anterior
+                                
+                               
+                                        newOrder.splice(backPos,0,
+                                        {status: CHANGE,
+                                        element: ((oldPalabras[encontrado].element)?oldPalabras[encontrado].element:null),
+                                        palabra: oldPalabras[encontrado].palabra,
+                                        posicion: encontrado,
+                                        caracter: oldPalabras[encontrado].caracter,
+                                        tag:oldPalabras[encontrado].tag,
+                                        sintagma: oldPalabras[encontrado].sintagma,
+                                        sintagmaPos:oldPalabras[encontrado].sintagmaPos});
+                                    
+                                    usados[encontrado] = true;
+
+
+                                } else {
+
+                            
+                                 
+
+                                      newOrder.splice(backPos,0,
+                                        {status: NEW,
+                                        element: ((palabras[k_Arr].element)?palabras[k_Arr].element:null),
+                                        palabra: palabras[k_Arr],
+                                        posicion: k_Arr,
+                                        caracter: "",
+                                        tag:palabras[k_Arr],
+                                        sintagma: 0,
+                                        sintagmaPos:-1});
+
+                                     logCadena2="";
+
+                                 
+
+                                }
+                                 
+                            }
+
+                            // 4. Identificar elementos eliminados
+              
+
+
+
+                            /// eliminar lo que no se usa.
+                            for (let i_Arr2 = 0; i_Arr2 < oldPalabras.length; i_Arr2++) {
+
+                                if (!usados[i_Arr2]) {
+                                   if(oldPalabras[i_Arr2].element)oldPalabras[i_Arr2].element.remove();
+                                }
+                            }
+
+                            ///chequeando viejos sintagmas:
+
+                             for (let i_Arr3 = 0; i_Arr3 < newOrder.length; i_Arr3++) {
+
+                                if (newOrder[i_Arr3].sintagma>-1) {
+                                    let k_sintg=0;
+
+                                    for(k_sintg=0;k_sintg<newOrder[i_Arr3].sintagma;k_sintg++){
+                                        if(newOrder[i_Arr3+k_sintg].sintagmaPos != k_sintg){
+                                            for( let k_sintg2=0;k_sintg2<=k_sintg;k_sintg2++){
+                                                newOrder[i_Arr3+k_sintg2].status=NEW;
+                                                newOrder[i_Arr3+k_sintg2].sintagma=0;
+                                                newOrder[i_Arr3+k_sintg2].sintagmaPos=-1;
+                                                if(newOrder[i_Arr3+k_sintg2].element)newOrder[i_Arr3+k_sintg2].element.remove();
+
+
+                                            }
+
+                                            break;
+                                        }
+                                    }
+                                    
+                                   i_Arr3+=k_sintg
+                                }
+                            }
+
+                        
+
+
+
+                    //--------------------------
+
+          
+
+           
+
+
+           
+                    if (!text.trim()) {
+                            container.innerHTML = '<span class="empty-placeholder">Los pictogramas aparecerán aquí mientras escribes...</span>';
+                            oldPalabras=[];
+                            return;
+                        }
+                        else if(oldPalabras.length==0){
+                            container.innerHTML ="";
+                        }
+
+                    //const tokens = text.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]+|[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]/g || []);
+                    //console.log(tokens);
+
+
+                    let i = 0;
+                    let position=0;
+                    logCadena="";
+
+                    while (i < newOrder.length) {
+
+
+                        logCadena+= (i==0?"":" ")+newOrder[i].palabra+":"+newOrder[i].status;
+                        //console.log(newOrder[i].palabra+":"+newOrder[i].status+"_")
+
+                        /*if(newOrder[i].status==OLD){
+
+                    
+                            
+
+                        }
+                        else */
+                        
+                        
+                        if(newOrder[i].status==NEW){
+
+
+
+
+
+
+                            let token = newOrder[i].palabra;
+                            let cleanToken = token.toLowerCase().trim();
+
+                        
+
+
+
+
+                            //-----
+
+                            let options = [];
+                            let optionTitles = [];
+                            let matchedPhrase = false;
+
+                            // 1. Intentar buscar sintagmas (frases de mayor a menor longitud desde la posición 'i')
+                            
+                            let maxS;
+                            let minS;
+                            const rangeSin=5;
+                            //limitar búsqueda a solo 2xrangeSin palaberas máximo.
+                            maxS=(newOrder.length>i+rangeSin)?i+rangeSin:newOrder.length;
+                            minS=(-1<(i-rangeSin))?i-rangeSin:0;
+
+                           // console.log("maxS: "+maxS+" minS: "+minS+" lenght: "+newOrder.length);
+
+                            if(newOrder.length> 1 ) 
+                            
+                            for (let j = maxS; j > i ; j--) {
+                                for(let iniS=minS;iniS<i && !matchedPhrase;iniS++){
+                                        let cadena = "";
+                                        for (let k = iniS; k < j; k++) {
+
+                                            //console.log("k: ",k," pal: "+newOrder[k].palabra+" status: "+newOrder[k].status+ " element: "+((newOrder[k].element)?"si":"no")+" sintg: "+newOrder[k].sintagma);
+
+                                        
+                                                if(newOrder[k].sintagma==0 || (newOrder[k].sintagma!=0 && newOrder[iniS].sintagmaPos==0))
+                                                    cadena += (k === iniS ? "" : " ") + (newOrder[k].palabra).toLowerCase().trim();
+                                                
+                    
+                                    
+                                        }
+                                        //console.log("sint: "+cadena);
+
+                                        if(newOrder[iniS].sintagma==0 || (newOrder[iniS].sintagma!=0 && newOrder[iniS].sintagma!=newOrder[j-1].sintagma))
+                                            if (sintagmaData && sintagmaData[cadena]) {
+
+
+
+                                                //pos sintagma desde iniS hasta j-1
+
+                                                //Renombrar a newOrder como bloque sintagma
+
+                                                options = extractOptions(sintagmaData[cadena]["codigos"]);
+                                                optionTitles = extractOptions(sintagmaData[cadena]["tags"]);
+                                                if(options.length>0&&optionTitles.length>0){
+
+                                                    
+
+                                                    //Reformatear newOrder
+                                                    for(let ksint=iniS;ksint<j;ksint++){
+                                                        
+                                                        newOrder[ksint].caracter=options[0];
+                                                        newOrder[ksint].tag=optionTitles[0];
+                                                        newOrder[ksint].sintagma=j-iniS;
+                                                        newOrder[ksint].sintagmaPos=ksint-iniS;
+                                                        newOrder[ksint].status=CHANGE;
+                                                        
+                                                        
+                                                        
+                                                        
+
+                                                    }
+
+
+
+
+                                                    
+
+
+
+
+
+                                                    options = extractOptions(sintagmaData[cadena]["codigos"]);
+                                                    optionTitles = extractOptions(sintagmaData[cadena]["tags"]);
+
+                                                
+
+
+                                                            //Agregar pictograma "sintagma":
+                                                            let fin=true;
+
+
+                                                            if(j>=newOrder.length) fin=false;
+
+                                                            let borrar;
+
+                                                            if(newOrder[iniS].element!=null) borrar=newOrder[iniS].element;
+
+
+                                                             //borrar bloques que no se usan:
+                                                            for(let k_notUsed=iniS+1;k_notUsed<j;k_notUsed++){
+                                                                    if(newOrder[k_notUsed].element!=null){
+                                                                        if(k_notUsed<=i &&position>0) position--;
+                                                                        (newOrder[k_notUsed].element).remove();
+                                                                        newOrder[k_notUsed].element=null;
+                                                                    }
+
+                                                            }
+
+
+
+                                                            newOrder[iniS].element=agregarPictograma(position,cadena,options, optionTitles,fin,container);
+                                                        
+                                                            newOrder[iniS].caracter=options[0];
+                                                            newOrder[iniS].tag=optionTitles[0];
+                                                            if(borrar) borrar.remove();
+                                                        
+                                                            
+
+                                                        
+
+                                                           
+                                                        
+
+
+
+
+
+
+                                                    matchedPhrase = true;
+                                                }
+                                            }
+                                    }
+
+
+                                    if(matchedPhrase){
+                                    // Avanzamos el índice 'i' saltando las palabras que formaron el sintagma
+                                    i = j-1;
+                                    position++;
+                                    
+                                    
+                                    
+                                    
+                                    break; // Encontramos el sintagma más largo para esta posición, salimos del bucle 
+                                    }
 
                                 
                             }
 
-                            wrapper.appendChild(dropdown);
-                        }
+                            //----------------------------------
 
-                        container.appendChild(wrapper);
+                            // 2. Si no hizo match con ningún sintagma, procesamos palabra por palabra
+                            if (!matchedPhrase && i<newOrder.length) {
+                                if (pictogramData[cleanToken])  {
+                                    options = extractOptions(pictogramData[cleanToken]["codigos"]);
+                                    optionTitles = extractOptions(pictogramData[cleanToken]["tags"]);
+                                }
+                                else {
+                                    
+                                    if( pictogramData[LemasData[cleanToken]]){
+                                    options = extractOptions(pictogramData[LemasData[cleanToken]]["codigos"]);
+                                    optionTitles = extractOptions(pictogramData[LemasData[cleanToken]]["tags"]);
+                                    }
+                                }
 
-                        // Avanzamos el índice 'i' saltando las palabras que formaron el sintagma
-                        i = j;
-                        matchedPhrase = true;
-                        break; // Encontramos el sintagma más largo para esta posición, salimos del bucle j
-                    }
-                }
 
-                // 2. Si no hizo match con ningún sintagma, procesamos palabra por palabra
-                if (!matchedPhrase) {
-                    if (pictogramData[cleanToken])  {
-                        options = extractOptions(pictogramData[cleanToken]["codigos"]);
-                        optionTitles = extractOptions(pictogramData[cleanToken]["tags"]);
-                    }
-                    else {
+                                // Buscar en sinónimos si no está en el mapa principal
+                                if (options.length === 0){
+                                    if (DictionaryData[cleanToken] ){
+                                        let sinonimos = DictionaryData[cleanToken].synonyms ||"";
+                                        let synonymsWords = sinonimos.split(',').map(p => p.trim());
+                                        let uniqueSynonyms = [];
+
+                                        synonymsWords.forEach(palabra => {
+                                            if (!uniqueSynonyms.includes(palabra) && palabra !== "") {
+                                                uniqueSynonyms.push(palabra);
+                                            }
+                                        });
+
+                                        uniqueSynonyms.forEach(palabra => {
+                                            if (pictogramData[palabra]) {
+                                                options.push(...extractOptions(pictogramData[palabra]["codigos"]));
+                                                optionTitles.push(...extractOptions(pictogramData[palabra]["tags"]));
+                                            }
+                                        });
+                                    } else if (DictionaryData[LemasData[cleanToken]] ){
+                                        let sinonimos = DictionaryData[LemasData[cleanToken]].synonyms ||"";
+                                        let synonymsWords = sinonimos.split(',').map(p => p.trim());
+                                        let uniqueSynonyms = [];
+
+                                        synonymsWords.forEach(palabra => {
+                                            if (!uniqueSynonyms.includes(palabra) && palabra !== "") {
+                                                uniqueSynonyms.push(palabra);
+                                            }
+                                        });
+
+                                        uniqueSynonyms.forEach(palabra => {
+                                            if (pictogramData[palabra]) {
+                                                options.push(...extractOptions(pictogramData[palabra]["codigos"]));
+                                                optionTitles.push(...extractOptions(pictogramData[palabra]["tags"]));
+                                            }
+                                        });
+                                    }
+
+                                }
+                                
+                                
+                                
+                                
+                                
+                                //Agregar picto:
+                                let fin=true;
+
+
+                                if(i+1>=newOrder.length) fin=false;
+
+                                newOrder[i].element = agregarPictograma(position,token,options, optionTitles,fin,container);
+
+                                if(options.length>0){
+                                    newOrder[i].caracter=options[0];
+                                    newOrder[i].tag=optionTitles[0];
+                                }
+                               
+
+                                
+                            
+                            
                         
-                        if( pictogramData[LemasData[cleanToken]]){
-                        options = extractOptions(pictogramData[LemasData[cleanToken]]["codigos"]);
-                        optionTitles = extractOptions(pictogramData[LemasData[cleanToken]]["tags"]);
-                        }
-                    }
+                                
+                            }
 
-
-                    // Buscar en sinónimos si no está en el mapa principal
-                    if (options.length === 0){
-                         if (DictionaryData[cleanToken] ){
-                            let sinonimos = DictionaryData[cleanToken].synonyms ||"";
-                            let synonymsWords = sinonimos.split(',').map(p => p.trim());
-                            let uniqueSynonyms = [];
-
-                            synonymsWords.forEach(palabra => {
-                                if (!uniqueSynonyms.includes(palabra) && palabra !== "") {
-                                    uniqueSynonyms.push(palabra);
-                                }
-                            });
-
-                            uniqueSynonyms.forEach(palabra => {
-                                if (pictogramData[palabra]) {
-                                    options.push(...extractOptions(pictogramData[palabra]["codigos"]));
-                                    optionTitles.push(...extractOptions(pictogramData[palabra]["tags"]));
-                                }
-                            });
-                        } else if (DictionaryData[LemasData[cleanToken]] ){
-                            let sinonimos = DictionaryData[LemasData[cleanToken]].synonyms ||"";
-                            let synonymsWords = sinonimos.split(',').map(p => p.trim());
-                            let uniqueSynonyms = [];
-
-                            synonymsWords.forEach(palabra => {
-                                if (!uniqueSynonyms.includes(palabra) && palabra !== "") {
-                                    uniqueSynonyms.push(palabra);
-                                }
-                            });
-
-                            uniqueSynonyms.forEach(palabra => {
-                                if (pictogramData[palabra]) {
-                                    options.push(...extractOptions(pictogramData[palabra]["codigos"]));
-                                    optionTitles.push(...extractOptions(pictogramData[palabra]["tags"]));
-                                }
-                            });
-                        }
+                        
 
                     }
-					
-					
-					
-					
-					
-					
-
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'picto-wrapper';
-
-                    const pictoBox = document.createElement('div');
-                    pictoBox.className = 'picto-box';
-
-                    const labelBox = document.createElement('span');
-                    labelBox.className = 'picto-label';
-                    labelBox.textContent = token;
-
-                    let activeChar = options.length > 0 ? String.fromCodePoint(parseInt(options[0], 16)) : token; 
-                    let activeTitle = options.length > 0 && optionTitles.length > 0 ? optionTitles[0] : token;
-
-                    pictoBox.textContent = activeChar;
-                    pictoBox.title = activeTitle;
-
-                    wrapper.appendChild(pictoBox);
-                    wrapper.appendChild(labelBox);
-
-                    if (options.length > 1) {
-                        const dropdown = document.createElement('div');
-                        dropdown.className = 'picto-dropdown';
-
-                        for (let p = 0; p < options.length; p++) {
-                            let opt = options[p];
-                            const optBtn = document.createElement('button');
-                            optBtn.className = 'opt-btn';
-                            optBtn.textContent = String.fromCodePoint(parseInt(opt, 16));
-                            optBtn.title = "Seleccionar"
-                            optBtn.onclick = (e) => {
-                                e.stopPropagation();
-                                pictoBox.textContent = optBtn.textContent;
-                                pictoBox.title = optionTitles[p] || '' ;
-                                pictoBox.value=p;
-                            };
-                            dropdown.appendChild(optBtn);
-
-                            const infoLabel = document.createElement('p');
-                            infoLabel.innerHTML =optionTitles[p] || '' ;
-                            infoLabel.className = 'infoLabelClass';    
-                            dropdown.appendChild(infoLabel);
-
+                    
+                    if(i<newOrder.length)
+                    if( newOrder[i].sintagmaPos<=0) {
+                        position++;
+                          
                         }
-
-                        wrapper.appendChild(dropdown);
-                    }
-
-                    container.appendChild(wrapper);
                     i++; // Avanzamos a la siguiente palabra
+                
+                      
                 }
-            }
+        
+                    //console.log("R:"+logCadena);
+                
+                         // 5. Actualizar array anterior
+
+                                for(let i_del=0;i_del<oldPalabras.length;i_del++)oldPalabras.pop;
+
+                                oldPalabras=newOrder.slice();
+
+                          
+
+        
+
+        
         }
+
 
         loadDefaults();
     </script>
