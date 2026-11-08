@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escritor de Pictogramas Avanzado</title>
+    
+   
+    <style>
+        @font-face {
+            font-family: 'DynamicPictogramFont';
+            src: url('./data/ScleraFont.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .main-container {
+            max-width: 56rem;
+            width: 100%;
+            background-color: #ffffff;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        header {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            line-height: 2.25rem;
+            font-weight: 800;
+            color: #4f46e5;
+        }
+
+        header p {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 0.5rem;
+        }
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.75rem;
+            outline: none;
+            font-size: 1.125rem;
+            transition: all 0.2s ease;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #475569;
+            margin-bottom: 0.75rem;
+        }
+
+        #outputContainer {
+            min-height: 160px;
+            padding: 1.5rem;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            align-content: flex-start;
+        }
+
+        .empty-placeholder {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .picto-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: border-color 0.2s ease;
+        }
+
+        .picto-wrapper:hover {
+            border-color: #818cf8;
+        }
+
+        .picto-box {
+            font-family: 'DynamicPictogramFont', sans-serif;
+            font-size: 4rem;
+            color: #4338ca;
+            height: 3.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            user-select: none;
+        }
+
+        .picto-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        .picto-dropdown {
+            position: absolute;
+            bottom: 100%;
+            margin-bottom: 0rem;
+            display: none;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            z-index: 25;
+            max-width: 20rem;
+            max-height: 20rem;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        .picto-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .picto-dropdown::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .picto-dropdown::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .picto-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .picto-wrapper:hover .picto-dropdown {
+            display: flex;
+        }
+
+        .opt-btn {
+            font-family: 'DynamicPictogramFont', sans-serif;
+            font-size: 2.5rem;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            border: 1px solid transparent;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .opt-btn:hover {
+            background-color: #eef2ff;
+            border-color: #a5b4fc;
+        }
+        .infoLabelClass{
+            font-size: 0.7rem;
+            
+        }
+      
+
+        .spacer {
+            width: 0.5rem;
+        }
+
+        .loadingBox{
+            background-color: #818cf8;
+            position:fixed;
+           
+            top:10vh;
+            
+            left: 10vw;
+
+            width: 80vw;
+            height: 80vh;
+            
+            text-align: center;
+            border-radius: 10px;
+        }
+        .loadingText{
+            color: #e2e8f0;
+            position: relative;
+            top:40%;
+
+        }
+
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col items-center p-6">
+        <div class="loadingBox" id="loadingBoxWait">
+
+                <h1 class="loadingText" id="loadText">loading (cargando)</h1>
+
+
+        </div>
+    <div class="main-container">
+
+        
+        <header>
+            <h1>Escritor de Pictogramas</h1>
+            <p>Escribe texto y visualiza los pictogramas correspondientes. Pasa el cursor sobre un pictograma con opciones para desplegar sinónimos o variantes.</p>
+        </header>
+
+        <!-- Área de Escritura -->
+        <div class="input-group">
+            <label for="textInput">Texto de entrada:</label>
+            <textarea id="textInput" rows="4" placeholder="Escribe aquí tu frase... (ej. Hola, ¿cómo estás?)"></textarea>
+        </div>
+
+        <!-- Contenedor de Pictogramas Resultantes -->
+        <div>
+            <h2 class="section-title">Pictogramas Generados:</h2>
+            <div id="outputContainer">
+                <span class="empty-placeholder">Los pictogramas aparecerán aquí mientras escribes...</span>
+            </div>
+        </div>
+
+        <div>
+            <br>
+            <p>Pictograms created from SCLERA npo: <a href="https://sclera.be/en/vzw/home">sclera.be</a></p>
+			<p> Código fuente: <a href="https://github.com/AndresHugoBernardez/Pictogramas/">Pictograma Source</a></p>
+
+		</div>
+
+    </div>
+
+
+
+
+<script src="./data/sclera_map.js"></script>
+<script src="./data/dict2.js"></script>
+<script src="./data/sclera_sintagmas_map.js"></script>
+<script src="./data/dictLemmas.js"></script>
+
+<script>
+    const pictogramMap = window.PictoWriterData.pictogramMap;
+    const dictionaryData = window.PictoWriterData.dictionaryData;
+    const phraseData = window.PictoWriterData.phraseData;
+    const lemmaData = window.PictoWriterData.lemmaData;
+
+
+
+
+
+
+        const pictogramFontName = 'DynamicPictogramFont';
+
+        // Processing status constants:
+        const STATUS_UNCHANGED=0;
+        const STATUS_NEW=1;
+        const STATUS_UPDATED=-1;
+    
+
+       
+
+    //--------------------------------
+
+        // Create and insert a pictogram at the requested position.
+
+        // Build a pictogram element, including its selectable alternatives, and insert it.
+        function addPictogram(index,token,options, optionTitles,isLastItem,container){
+
+
+
+                    const pictogramWrapper = document.createElement('div');
+                    pictogramWrapper.className = 'picto-wrapper';
+
+                    const pictogramBox = document.createElement('div');
+                    pictogramBox.className = 'picto-box';
+
+                    const labelElement = document.createElement('span');
+                    labelElement.className = 'picto-label';
+                    labelElement.textContent = token;
+
+                    let activeCharacter = options.length > 0 ? String.fromCodePoint(parseInt(options[0], 16)) : token; 
+                    let activeTitle = options.length > 0 && optionTitles.length > 0 ? optionTitles[0] : token;
+
+                    pictogramBox.textContent = activeCharacter;
+                    pictogramBox.title = activeTitle;
+
+                    pictogramWrapper.appendChild(pictogramBox);
+                    pictogramWrapper.appendChild(labelElement);
+
+                    if (options.length > 1) {
+                        const optionsDropdown = document.createElement('div');
+                        optionsDropdown.className = 'picto-dropdown';
+
+                        for (let optionIndex = 0; optionIndex < options.length; optionIndex++) {
+                            let optionCode = options[optionIndex];
+                            const optionButton = document.createElement('button');
+                            optionButton.className = 'opt-btn';
+                            optionButton.textContent = String.fromCodePoint(parseInt(optionCode, 16));
+                            optionButton.title = "Seleccionar"
+                            optionButton.onclick = (event) => {
+                                event.stopPropagation();
+                                pictogramBox.textContent = optionButton.textContent;
+                                pictogramBox.title = optionTitles[optionIndex] || '' ;
+                                pictogramBox.value=optionIndex;
+                            };
+                            optionsDropdown.appendChild(optionButton);
+
+                            const optionLabel = document.createElement('p');
+                            optionLabel.innerHTML =optionTitles[optionIndex] || '' ;
+                            optionLabel.className = 'infoLabelClass';    
+                            optionsDropdown.appendChild(optionLabel);
+
+                        }
+
+                        pictogramWrapper.appendChild(optionsDropdown);
+                    }
+
+
+                    if(container.children[index])
+                    container.children[index].before(pictogramWrapper);
+                    else if(index>=container.children.length)
+                    container.appendChild(pictogramWrapper);
+                
+                    
+                    /*
+                    if(!fin){
+                
+                    const spaceSpan = document.createElement('span');
+                    spaceSpan.className = 'spacer';
+                
+                    if(container.children[i])
+                    container.children[i].before(spaceSpan);
+                    else if(i>=container.children.length)
+                    container.appendChild(spaceSpan);
+                
+                    }*/
+                    return(pictogramWrapper);
+
+
+        }
+
+
+
+
+    //--------------------------------
+
+
+
+
+
+
+      /*
+
+        // 1. Load the default data files.
+        // Fetch the default JSON resources used by the renderer.
+        async function loadDefaultData() {
+            
+            try {
+                const response = await fetch('https://andreshugobernardez.github.io/pagesAB/PictoWriter/sclera_map.json');
+                if (response.ok) {
+                    pictogramMap = await response.json();
+                    console.log("JSON por defecto cargado exitosamente. Claves totales:", Object.keys(pictogramMap).length);
+                }
+            } catch (event) {
+                console.log("Nota: Carga automática de JSON sclera_map omitida.");
+            }
+
+            try {
+                const response = await fetch('https://andreshugobernardez.github.io/pagesAB/PictoWriter/sclera_sintagmas_map.json');
+                if (response.ok) {
+                    phraseData = await response.json();
+                    console.log("JSON Sintagmas MAP cargado exitosamente. Claves totales:", Object.keys(phraseData).length);
+                }
+            } catch (event) {
+                console.log("Nota: Carga automática de JSON sintagmas omitida.");
+            }
+
+            try {
+                const response = await fetch('https://andreshugobernardez.github.io/pagesAB/PictoWriter/dict2.json');
+                if (response.ok) {
+                    dictionaryData = await response.json();
+                    console.log("Diccionario cargado", Object.keys(dictionaryData).length);
+                }
+            } catch (event) {
+                console.log("Nota: Carga de diccionario fallida");
+            }
+			try {
+                const response = await fetch('https://andreshugobernardez.github.io/pagesAB/PictoWriter/dictLemmas.json');
+                if (response.ok) {
+                    lemmaData = await response.json();
+                    console.log("Diccionario de Lemas cargado", Object.keys(lemmaData).length);
+                    document.getElementById("loadingBoxWait").style.display="none";
+                }
+            } catch (event) {
+                console.log("Nota: Carga de diccionario de Lemas fallida");
+                
+            }
+        }*/
+
+        // Re-render pictograms whenever the input text changes.
+        document.getElementById('textInput').addEventListener('input', renderPictograms);
+
+        function extractOptions(dataEntry) {
+            if (!dataEntry) return [];
+            if (Array.isArray(dataEntry)) {
+                return dataEntry.map(item => typeof item === 'object' ? (item.char || item.value || JSON.stringify(item)) : String(item));
+            }
+            if (typeof dataEntry === 'object') {
+                return [dataEntry.char || dataEntry.value || JSON.stringify(dataEntry)];
+            }
+            return [String(dataEntry)];
+
+
+        }
+
+        var textInputElement;
+        var previousTokens = [];
+       
+ var renderLog="";
+ var debugLog="";
+ var secondaryDebugLog="";
+        
+
+        // Reconcile the current token sequence with the previous render, then update the DOM.
+        // The matching, phrase detection and synonym-resolution algorithm is intentionally unchanged.
+        function renderPictograms() {
+            const inputText = document.getElementById('textInput').value;
+            const container = document.getElementById('outputContainer');
+
+            //--------------------------
+
+
+                  
+                       
+
+                       
+
+                            let tokens = [];
+                            let prefixLength = 0;
+                           
+                            let currentTokens =[];
+                            let removedTokens = [];
+                            tokens = inputText.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]+|[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]/g) || [];
+
+                          
+
+                      
+                            // 1. Preserve the unchanged prefix.
+                            for (
+                                prefixLength = 0;
+                                prefixLength < tokens.length &&
+                                prefixLength < previousTokens.length &&
+                                tokens[prefixLength] === previousTokens[prefixLength].word;
+                               
+                                prefixLength++
+                            ) {
+                               
+                                currentTokens.push( 
+                                    {status: STATUS_UNCHANGED,
+                                     element: ((previousTokens[prefixLength].element)?previousTokens[prefixLength].element:null),
+                                     word: previousTokens[prefixLength].word,
+                                     position: prefixLength,
+                                     character: previousTokens[prefixLength].character,
+                                     tag:previousTokens[prefixLength].tag,
+                                     phraseLength: previousTokens[prefixLength].phraseLength,
+                                     phrasePosition:previousTokens[prefixLength].phrasePosition});
+                            }
+
+                            // 2. Find reusable tokens after the first difference.
+                            let usedPreviousTokens = new Array(previousTokens.length).fill(false);
+
+                            // Mark prefix items as already reused.
+                            for (let prefixIndex = 0; prefixIndex < prefixLength; prefixIndex++) {
+                                usedPreviousTokens[prefixIndex] = true;
+                            }
+
+                            
+
+                            let insertPosition=currentTokens.length;
+
+
+                            // 3. Process the new token sequence from right to left.
+                            for (let newTokenIndex = tokens.length-1; newTokenIndex >= prefixLength ; newTokenIndex--) {
+
+                                let matchedPreviousIndex = -1;
+                            
+                                // Find an available matching token from the previous render.
+                                for (let previousTokenIndex = previousTokens.length-1; !usedPreviousTokens[previousTokenIndex] && previousTokenIndex >=prefixLength ; previousTokenIndex--) {
+
+                                    if (
+                                        !usedPreviousTokens[previousTokenIndex] &&
+                                        tokens[newTokenIndex] === previousTokens[previousTokenIndex].word
+                                    ) {
+                                        matchedPreviousIndex = previousTokenIndex;
+                                        break;
+                                    }
+                                }
+
+
+                                
+
+                                if (matchedPreviousIndex !== -1) {
+
+                                    // Reuse the matching previous token.
+                                
+                               
+                                        currentTokens.splice(insertPosition,0,
+                                        {status: STATUS_UPDATED,
+                                        element: ((previousTokens[matchedPreviousIndex].element)?previousTokens[matchedPreviousIndex].element:null),
+                                        word: previousTokens[matchedPreviousIndex].word,
+                                        position: matchedPreviousIndex,
+                                        character: previousTokens[matchedPreviousIndex].character,
+                                        tag:previousTokens[matchedPreviousIndex].tag,
+                                        phraseLength: previousTokens[matchedPreviousIndex].phraseLength,
+                                        phrasePosition:previousTokens[matchedPreviousIndex].phrasePosition});
+                                    
+                                    usedPreviousTokens[matchedPreviousIndex] = true;
+
+
+                                } else {
+
+                            
+                                 
+
+                                      currentTokens.splice(insertPosition,0,
+                                        {status: STATUS_NEW,
+                                        element: ((tokens[newTokenIndex].element)?tokens[newTokenIndex].element:null),
+                                        word: tokens[newTokenIndex],
+                                        position: newTokenIndex,
+                                        character: "",
+                                        tag:tokens[newTokenIndex],
+                                        phraseLength: 0,
+                                        phrasePosition:-1});
+
+                                     debugLog="";
+
+                                 
+
+                                }
+                                 
+                            }
+
+                            // 4. Identify and remove tokens no longer present.
+              
+
+
+
+                            /// Remove elements that are no longer used.
+                            for (let cleanupIndex = 0; cleanupIndex < previousTokens.length; cleanupIndex++) {
+
+                                if (!usedPreviousTokens[cleanupIndex]) {
+                                   if(previousTokens[cleanupIndex].element)previousTokens[cleanupIndex].element.remove();
+                                }
+                            }
+
+                            /// Validate previously rendered phrases.
+
+                             for (let phraseCheckIndex = 0; phraseCheckIndex < currentTokens.length; phraseCheckIndex++) {
+
+                                if (currentTokens[phraseCheckIndex].phraseLength>-1) {
+                                    let phraseOffset=0;
+
+                                    for(phraseOffset=0;phraseOffset<currentTokens[phraseCheckIndex].phraseLength;phraseOffset++){
+                                        if(currentTokens[phraseCheckIndex+phraseOffset].phrasePosition != phraseOffset){
+                                            for( let phraseCleanupOffset=0;phraseCleanupOffset<=phraseOffset;phraseCleanupOffset++){
+                                                currentTokens[phraseCheckIndex+phraseCleanupOffset].status=STATUS_NEW;
+                                                currentTokens[phraseCheckIndex+phraseCleanupOffset].phraseLength=0;
+                                                currentTokens[phraseCheckIndex+phraseCleanupOffset].phrasePosition=-1;
+                                                if(currentTokens[phraseCheckIndex+phraseCleanupOffset].element)currentTokens[phraseCheckIndex+phraseCleanupOffset].element.remove();
+
+
+                                            }
+
+                                            break;
+                                        }
+                                    }
+                                    
+                                   phraseCheckIndex+=phraseOffset
+                                }
+                            }
+
+                        
+
+
+
+                    //--------------------------
+
+          
+
+           
+
+
+           
+                    if (!inputText.trim()) {
+                            container.innerHTML = '<span class="empty-placeholder">Los pictogramas aparecerán aquí mientras escribes...</span>';
+                            previousTokens=[];
+                            return;
+                        }
+                        else if(previousTokens.length==0){
+                            container.innerHTML ="";
+                        }
+
+                    // The tokenization expression is kept here as a reference.
+                    // Optional debugging: inspect the token list.
+
+
+                    let index = 0;
+                    let position=0;
+                    renderLog="";
+
+                    while (index < currentTokens.length) {
+
+
+                        renderLog+= (index==0?"":" ")+currentTokens[index].word+":"+currentTokens[index].status;
+                        // Optional debugging: inspect the token and its processing status.
+
+                        /*if(newOrder[i].status==OLD){
+
+                    
+                            
+
+                        }
+                        else */
+                        
+                        
+                        if(currentTokens[index].status==STATUS_NEW){
+
+
+
+
+
+
+                            let token = currentTokens[index].word;
+                            let normalizedToken = token.toLowerCase().trim();
+
+                        
+
+
+
+
+                            //-----
+
+                            let options = [];
+                            let optionTitles = [];
+                            let phraseMatched = false;
+
+                            // 1. Search for phrases, testing longer candidates before shorter ones from the current position.
+                            
+                            let maxPhraseEnd;
+                            let minPhraseStart;
+                            const phraseSearchRange=5;
+                            //limitar búsqueda a solo 2xrangeSin palaberas máximo.
+                            maxPhraseEnd=(currentTokens.length>index+phraseSearchRange)?index+phraseSearchRange:currentTokens.length;
+                            minPhraseStart=(-1<(index-phraseSearchRange))?index-phraseSearchRange:0;
+
+                           // console.log("maxS: "+maxS+" minS: "+minS+" lenght: "+newOrder.length);
+
+                            if(currentTokens.length> 1 ) 
+                            
+                            for (let phraseEnd = maxPhraseEnd; phraseEnd > index ; phraseEnd--) {
+                                for(let phraseStart=minPhraseStart;phraseStart<index && !phraseMatched;phraseStart++){
+                                        let phraseText = "";
+                                        for (let phraseTokenIndex = phraseStart; phraseTokenIndex < phraseEnd; phraseTokenIndex++) {
+
+                                            // Optional debugging: inspect the token, status, rendered element and phrase membership.
+
+                                        
+                                                if(currentTokens[phraseTokenIndex].phraseLength==0 || (currentTokens[phraseTokenIndex].phraseLength!=0 && currentTokens[phraseStart].phrasePosition==0))
+                                                    phraseText += (phraseTokenIndex === phraseStart ? "" : " ") + (currentTokens[phraseTokenIndex].word).toLowerCase().trim();
+                                                
+                    
+                                    
+                                        }
+                                        // Optional debugging: inspect the candidate phrase.
+
+                                        if(currentTokens[phraseStart].phraseLength==0 || (currentTokens[phraseStart].phraseLength!=0 && currentTokens[phraseStart].phraseLength!=currentTokens[phraseEnd-1].phraseLength))
+                                            if (phraseData && phraseData[phraseText]) {
+
+
+
+                                                // Phrase spans from phraseStart through phraseEnd - 1.
+
+                                                // Represent the matched phrase as a single logical block.
+
+                                                options = extractOptions(phraseData[phraseText]["codigos"]);
+                                                optionTitles = extractOptions(phraseData[phraseText]["tags"]);
+                                                if(options.length>0&&optionTitles.length>0){
+
+                                                    
+
+                                                    // Update the token records to represent the matched phrase.
+                                                    for(let phraseIndex=phraseStart;phraseIndex<phraseEnd;phraseIndex++){
+                                                        
+                                                        currentTokens[phraseIndex].character=options[0];
+                                                        currentTokens[phraseIndex].tag=optionTitles[0];
+                                                        currentTokens[phraseIndex].phraseLength=phraseEnd-phraseStart;
+                                                        currentTokens[phraseIndex].phrasePosition=phraseIndex-phraseStart;
+                                                        currentTokens[phraseIndex].status=STATUS_UPDATED;
+                                                        
+                                                        
+                                                        
+                                                        
+
+                                                    }
+
+
+
+
+                                                    
+
+
+
+
+
+                                                    options = extractOptions(phraseData[phraseText]["codigos"]);
+                                                    optionTitles = extractOptions(phraseData[phraseText]["tags"]);
+
+                                                
+
+
+                                                            // Add the phrase pictogram.
+                                                            let isLastItem=true;
+
+
+                                                            if(phraseEnd>=currentTokens.length) isLastItem=false;
+
+                                                            let elementToRemove;
+
+                                                            if(currentTokens[phraseStart].element!=null) elementToRemove=currentTokens[phraseStart].element;
+
+
+                                                             // Remove obsolete pictogram elements inside the phrase.
+                                                            for(let unusedIndex=phraseStart+1;unusedIndex<phraseEnd;unusedIndex++){
+                                                                    if(currentTokens[unusedIndex].element!=null){
+                                                                        if(unusedIndex<=index &&position>0) position--;
+                                                                        (currentTokens[unusedIndex].element).remove();
+                                                                        currentTokens[unusedIndex].element=null;
+                                                                    }
+
+                                                            }
+
+
+
+                                                            currentTokens[phraseStart].element=addPictogram(position,phraseText,options, optionTitles,isLastItem,container);
+                                                        
+                                                            currentTokens[phraseStart].character=options[0];
+                                                            currentTokens[phraseStart].tag=optionTitles[0];
+                                                            if(elementToRemove) elementToRemove.remove();
+                                                        
+                                                            
+
+                                                        
+
+                                                           
+                                                        
+
+
+
+
+
+
+                                                    phraseMatched = true;
+                                                }
+                                            }
+                                    }
+
+
+                                    if(phraseMatched){
+                                    // Skip the remaining tokens that belong to the matched phrase.
+                                    index = phraseEnd-1;
+                                    position++;
+                                    
+                                    
+                                    
+                                    
+                                    break; // The longest matching phrase was found; stop searching. 
+                                    }
+
+                                
+                            }
+
+                            //----------------------------------
+
+                            // 2. If no phrase matches, process the token individually.
+                            if (!phraseMatched && index<currentTokens.length) {
+                                if (pictogramMap[normalizedToken])  {
+                                    options = extractOptions(pictogramMap[normalizedToken]["codigos"]);
+                                    optionTitles = extractOptions(pictogramMap[normalizedToken]["tags"]);
+                                }
+                                else {
+                                    
+                                    if( pictogramMap[lemmaData[normalizedToken]]){
+                                    options = extractOptions(pictogramMap[lemmaData[normalizedToken]]["codigos"]);
+                                    optionTitles = extractOptions(pictogramMap[lemmaData[normalizedToken]]["tags"]);
+                                    }
+                                }
+
+
+                                // Search for synonyms when the token has no direct pictogram match.
+                                if (options.length === 0){
+                                    if (dictionaryData[normalizedToken] ){
+                                        let synonymsText = dictionaryData[normalizedToken].synonyms ||"";
+                                        let synonymWords = synonymsText.split(',').map(optionIndex => optionIndex.trim());
+                                        let uniqueSynonyms = [];
+
+                                        synonymWords.forEach(word => {
+                                            if (!uniqueSynonyms.includes(word) && word !== "") {
+                                                uniqueSynonyms.push(word);
+                                            }
+                                        });
+
+                                        uniqueSynonyms.forEach(word => {
+                                            if (pictogramMap[word]) {
+                                                options.push(...extractOptions(pictogramMap[word]["codigos"]));
+                                                optionTitles.push(...extractOptions(pictogramMap[word]["tags"]));
+                                            }
+                                        });
+                                    } else if (dictionaryData[lemmaData[normalizedToken]] ){
+                                        let synonymsText = dictionaryData[lemmaData[normalizedToken]].synonyms ||"";
+                                        let synonymWords = synonymsText.split(',').map(optionIndex => optionIndex.trim());
+                                        let uniqueSynonyms = [];
+
+                                        synonymWords.forEach(word => {
+                                            if (!uniqueSynonyms.includes(word) && word !== "") {
+                                                uniqueSynonyms.push(word);
+                                            }
+                                        });
+
+                                        uniqueSynonyms.forEach(word => {
+                                            if (pictogramMap[word]) {
+                                                options.push(...extractOptions(pictogramMap[word]["codigos"]));
+                                                optionTitles.push(...extractOptions(pictogramMap[word]["tags"]));
+                                            }
+                                        });
+                                    }
+
+                                }
+                                
+                                
+                                
+                                
+                                
+                                // Add the individual pictogram.
+                                let isLastItem=true;
+
+
+                                if(index+1>=currentTokens.length) isLastItem=false;
+
+                                currentTokens[index].element = addPictogram(position,token,options, optionTitles,isLastItem,container);
+
+                                if(options.length>0){
+                                    currentTokens[index].character=options[0];
+                                    currentTokens[index].tag=optionTitles[0];
+                                }
+                               
+
+                                
+                            
+                            
+                        
+                                
+                            }
+
+                        
+
+                    }
+                    
+                    if(index<currentTokens.length)
+                    if( currentTokens[index].phrasePosition<=0) {
+                        position++;
+                          
+                        }
+                    index++; // Move to the next token.
+                
+                      
+                }
+        
+                    // Optional debugging: inspect the render log.
+                
+                         // 5. Store the current token sequence for the next input event.
+
+                                for(let cleanupIndex=0;cleanupIndex<previousTokens.length;cleanupIndex++)previousTokens.pop;
+
+                                previousTokens=currentTokens.slice();
+
+                          
+
+        
+
+        
+        }
+
+
+        //window.document.addEventListener('DOMContentLoaded',(event)=> {
+        document.getElementById("loadingBoxWait").style.display="none";
+    //});
+    </script>
+</body>
+</html>
