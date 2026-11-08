@@ -13,7 +13,7 @@ https://sclera.be/en/vzw/home
 
 Note: You may need to adjust file and folder paths in the scripts before running them.
 
-1. Translating the PNG filenames
+## Translating the PNG filenames
 
 1. Open the "PNGs" folder in Google Chrome or another web browser.
 2. Copy the list of filenames.
@@ -23,19 +23,19 @@ Note: You may need to adjust file and folder paths in the scripts before running
 6. Copy the translated list.
 7. Run "Renombrar.ps1" using PowerShell to rename the files.
 
-2. Creating SVG files
+## Creating SVG files
 
 1. Install FontForge.
 2. Download "potrace.exe" and place it inside the "PNGs" folder.
 3. Run "PNGtoSVG.py" using Python IDLE.
 4. The script will generate an "SVGs" folder.
 
-Important: The conversion script only works with black-and-white images. It also inverts the colors of Sclera's images to eliminate contrast.
+#### Important: The conversion script only works with black-and-white images. It also inverts the colors of Sclera's images to eliminate contrast.
 
-3. Creating the font
+## Creating the font
 
 Run "script.py" using Python IDLE to generate the font files.
 
-4. Creating the JSON dictionary
+## Creating the JSON dictionary
 
 Run "jsoncreator_v2.py" to generate "sclera_maps.json".
